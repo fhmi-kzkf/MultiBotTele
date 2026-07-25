@@ -1,0 +1,43 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ChatHistory {
+  id          Int      @id @default(autoincrement())
+  chatId      Int      @map("chat_id")
+  messageId   Int      @map("message_id")
+  senderId    Int      @map("sender_id")
+  senderName  String?  @map("sender_name")
+  textContent String   @map("text_content")
+  timestamp   DateTime @default(now())
+  isHuman     Boolean  @default(true) @map("is_human")
+
+  @@map("chat_history")
+}
+
+model AgentSession {
+  agentId              String    @id @map("agent_id")
+  phoneNumber          String    @map("phone_number")
+  isActive             Boolean   @default(true) @map("is_active")
+  isTyping             Boolean   @default(false) @map("is_typing")
+  lastMessageTimestamp DateTime? @map("last_message_timestamp")
+  currentPersonaHash   String?   @map("current_persona_hash")
+
+  @@map("agent_sessions")
+}
+
+model LlmMetric {
+  id            Int      @id @default(autoincrement())
+  provider      String
+  timestamp     DateTime @default(now())
+  tokensUsed    Int?     @map("tokens_used")
+  statusCode    Int?     @map("status_code")
+  isRateLimited Boolean  @default(false) @map("is_rate_limited")
+
+  @@map("llm_metrics")
+}

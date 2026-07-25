@@ -1,0 +1,36 @@
+# Environment & Secrets
+.env
+*.env
+*.pem
+*.key
+
+# Telethon Sessions & Auth Data
+sessions/
+*.session
+*.session-journal
+
+# Database & Logs
+data/*.db
+data/*.db-journal
+data/*.log
+*.log
+
+# Python Virtual Environment & Cache
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS System Files
+.DS_Store
+Thumbs.db

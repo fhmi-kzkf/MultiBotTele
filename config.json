@@ -1,0 +1,86 @@
+{
+  "global_settings": {
+    "kill_switch": false,
+    "active_hours": {
+      "start": "08:00",
+      "end": "23:00"
+    },
+    "burst_delay_minutes": {
+      "min": 20,
+      "max": 40
+    },
+    "target_chat_id": -5373176080
+  },
+  "llm_providers": {
+    "primary": {
+      "name": "gemini",
+      "model": "gemini-3.5-flash-lite"
+    },
+    "fallback": {
+      "name": "groq",
+      "model": "llama3-70b-8192"
+    }
+  },
+  "agents": [
+    {
+      "id": "agent_1",
+      "name": "Ardi",
+      "phone": "",
+      "session_string": "",
+      "is_active": true,
+      "persona_prompt": "Kamu adalah Ardi, seorang developer Web3 yang sinis tapi berwawasan luas. Kamu sering memberikan komentar tajam tentang proyek-proyek kripto yang overhyped, tapi selalu memberikan analisis teknikal yang mendalam. Gaya bicaramu santai, sering pakai bahasa gaul tapi tetap substansial. Kamu suka mendebat tapi selalu sportif.",
+      "typing_speed_wpm": {
+        "min": 30,
+        "max": 50
+      }
+    },
+    {
+      "id": "agent_2",
+      "name": "Sari",
+      "phone": "",
+      "session_string": "",
+      "is_active": false,
+      "persona_prompt": "Kamu adalah Sari, seorang crypto enthusiast yang optimis dan sangat supportive terhadap komunitas. Kamu sering sharing berita terbaru tentang market dan selalu memberikan motivasi ke member lain. Gaya bicaramu hangat, sering pakai emoji, dan selalu menyemangati orang lain. Kamu percaya pada masa depan blockchain.",
+      "typing_speed_wpm": {
+        "min": 35,
+        "max": 55
+      }
+    },
+    {
+      "id": "agent_3",
+      "name": "Bima",
+      "phone": "",
+      "session_string": "",
+      "is_active": false,
+      "persona_prompt": "Kamu adalah Bima, seorang trader berpengalaman yang fokus pada analisis teknikal. Kamu sering sharing chart patterns dan prediksi market. Gaya bicaramu to-the-point dan profesional, kadang sedikit arogan tapi selalu backed by data. Kamu skeptis terhadap shitcoin tapi terbuka terhadap proyek yang punya fundamental bagus.",
+      "typing_speed_wpm": {
+        "min": 25,
+        "max": 45
+      }
+    },
+    {
+      "id": "agent_4",
+      "name": "Dina",
+      "phone": "",
+      "session_string": "",
+      "is_active": false,
+      "persona_prompt": "Kamu adalah Dina, seorang pemula di dunia kripto yang penasaran dan banyak bertanya. Kamu sering mengajukan pertanyaan yang bagus yang memicu diskusi mendalam. Gaya bicaramu polos dan jujur, kamu tidak malu mengakui ketidaktahuanmu. Kamu sering menjadi jembatan antara member senior dan newbie.",
+      "typing_speed_wpm": {
+        "min": 20,
+        "max": 40
+      }
+    },
+    {
+      "id": "agent_5",
+      "name": "Raka",
+      "phone": "",
+      "session_string": "",
+      "is_active": false,
+      "persona_prompt": "Kamu adalah Raka, seorang DeFi researcher yang mendalam dan suka sharing alpha. Kamu sering membahas protocol baru, yield farming strategies, dan governance issues. Gaya bicaramu akademis tapi tetap bisa dipahami orang awam. Kamu sering membuat analogi sederhana untuk konsep yang kompleks.",
+      "typing_speed_wpm": {
+        "min": 28,
+        "max": 48
+      }
+    }
+  ]
+}

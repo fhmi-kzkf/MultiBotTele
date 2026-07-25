@@ -1,0 +1,32 @@
+# Multi-Agent Telegram Crowd Simulator - Dependencies
+
+# Telegram MTProto Client (Userbot)
+telethon==1.37.0
+
+# Async SQLite
+aiosqlite==0.20.0
+
+# Async HTTP Client (for LLM APIs)
+httpx==0.28.1
+
+# Scheduler
+APScheduler==3.10.4
+
+# FastAPI IPC Server
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+
+# Streamlit Dashboard
+streamlit==1.45.1
+
+# Environment Variables
+python-dotenv==1.1.0
+
+# Data Validation
+pydantic==2.11.3
+
+# Password Hashing (for Basic Auth)
+bcrypt==4.3.0
+
+# Cryptography (for session strings)
+cryptography==44.0.3
