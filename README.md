@@ -61,7 +61,7 @@ MultiBotTele/
 
 ```bash
 # Clone repository
-git clone https://github.com/username/MultiBotTele.git
+git clone https://github.com/fhmi-kzkf/MultiBotTele.git
 cd MultiBotTele
 
 # Buat dan aktifkan virtual environment
