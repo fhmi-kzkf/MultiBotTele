@@ -324,7 +324,10 @@ def dashboard_screen():
     """Main command dashboard with agent status and kill switch."""
     st.markdown("""
     <div class="main-header">
-        <h1>🎮 Command Dashboard</h1>
+        <h1>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" style="vertical-align: sub; margin-right: 8px;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            Command Dashboard
+        </h1>
         <p>Monitor dan kontrol seluruh jaringan agent dalam satu tampilan</p>
     </div>
     """, unsafe_allow_html=True)
@@ -896,19 +899,22 @@ def main():
     with st.sidebar:
         st.markdown("""
         <div class="sidebar-logo">
-            <h2>🤖 MultiBotTele</h2>
-            <p style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">Command Center v1.0</p>
+            <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                MultiBotTele
+            </h2>
+            <p style="color: #807f7f; font-size: 0.75rem; letter-spacing: 0.04em;">COMMAND CENTER V1.0</p>
         </div>
         """, unsafe_allow_html=True)
 
         page = st.radio(
             "Navigation",
             [
-                "🎮 Dashboard",
-                "👤 Agent & Persona",
-                "⏰ Scheduling",
-                "💬 Live Chat",
-                "📊 Metrics",
+                "Dashboard",
+                "Agent & Persona",
+                "Scheduling",
+                "Live Chat",
+                "Metrics",
             ],
             label_visibility="collapsed",
         )
@@ -920,26 +926,26 @@ def main():
         if config:
             kill_switch = config.get("global_settings", {}).get("kill_switch", False)
             if kill_switch:
-                st.error("🚨 Kill Switch: AKTIF")
+                st.error("Kill Switch: AKTIF")
             else:
-                st.success("🟢 Sistem: Berjalan")
+                st.success("Sistem: Berjalan")
 
         st.markdown("---")
 
-        if st.button("🚪 Logout", use_container_width=True):
+        if st.button("Logout", use_container_width=True):
             st.session_state["is_authenticated"] = False
             st.rerun()
 
     # Route to selected screen
-    if page == "🎮 Dashboard":
+    if page == "Dashboard":
         dashboard_screen()
-    elif page == "👤 Agent & Persona":
+    elif page == "Agent & Persona":
         agent_persona_screen()
-    elif page == "⏰ Scheduling":
+    elif page == "Scheduling":
         scheduling_screen()
-    elif page == "💬 Live Chat":
+    elif page == "Live Chat":
         chat_monitor_screen()
-    elif page == "📊 Metrics":
+    elif page == "Metrics":
         metrics_screen()
 
 
