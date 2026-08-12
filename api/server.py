@@ -13,7 +13,7 @@ import asyncio
 import logging
 from typing import Dict, Any, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -201,7 +201,18 @@ async def update_agent_persona(agent_id: str, request: AgentPersonaRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── Endpoints: Config ──────────────────────────────────────────────
+@app.post("/api/v1/trigger-burst")
+async def trigger_burst(background_tasks: BackgroundTasks):
+    """Manually trigger a conversation burst (crowd simulator) immediately."""
+    if not _orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not ready")
+    
+    # Run the burst in the background so the API returns immediately
+    background_tasks.add_task(_orchestrator.run_scheduled_burst)
+    return {"status": "success", "message": "Manual burst triggered successfully"}
+
+
+# ── Endpoints: Config Management ──────────────────────────────────────────────
 
 @app.get("/api/v1/config")
 async def get_current_config():

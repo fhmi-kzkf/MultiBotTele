@@ -628,6 +628,21 @@ def scheduling_screen():
     active_hours = global_settings.get("active_hours", {"start": "08:00", "end": "23:00"})
     burst_delay = global_settings.get("burst_delay_minutes", {"min": 20, "max": 40})
 
+    # ── Manual Trigger ──
+    st.markdown("### 🚀 Manual Crowd Trigger")
+    st.caption("Gunakan tombol ini untuk memicu simulasi keramaian grup secara instan (on-demand), mengabaikan jadwal Burst Delay.")
+    
+    col_trig, _ = st.columns([1, 1])
+    with col_trig:
+        if st.button("🔥 Trigger Crowd Sekarang", type="primary", use_container_width=True):
+            res = api_call("POST", "/api/v1/trigger-burst")
+            if res:
+                st.success("✅ Crowd berhasil dipicu! Bot akan mulai mengetik di Telegram dalam beberapa detik.")
+            else:
+                st.error("Gagal memicu crowd. Pastikan backend API berjalan.")
+
+    st.markdown("---")
+
     # ── Active Hours ──
     st.markdown("### 🕐 Jam Aktif")
     st.caption("Bot hanya akan aktif pada rentang jam ini. Di luar jam ini, bot akan 'tidur'.")
