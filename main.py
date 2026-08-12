@@ -28,6 +28,8 @@ load_dotenv()
 
 # ── Logging Setup ───────────────────────────────────────────────────
 
+import logging.handlers
+
 LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)-25s | %(message)s"
 LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -37,8 +39,10 @@ logging.basicConfig(
     datefmt=LOG_DATE_FORMAT,
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(
+        logging.handlers.RotatingFileHandler(
             os.path.join(os.path.dirname(__file__), "data", "multibot.log"),
+            maxBytes=5 * 1024 * 1024,  # 5 MB max per file
+            backupCount=5,             # Keep 5 backup logs
             encoding="utf-8",
         ),
     ],

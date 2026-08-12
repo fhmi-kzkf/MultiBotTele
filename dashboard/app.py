@@ -286,8 +286,12 @@ import hmac
 import hashlib
 import bcrypt
 
-# Generate secret key for session token signing based on ADMIN_PASSWORD and SECRET
-SESSION_SECRET = hashlib.sha256(f"{ADMIN_USERNAME}:{ADMIN_PASSWORD}".encode()).hexdigest()
+# Generate secret key for session token signing (prioritize SECRET_KEY from .env)
+ENV_SECRET = os.getenv("SECRET_KEY")
+if ENV_SECRET:
+    SESSION_SECRET = hashlib.sha256(ENV_SECRET.encode()).hexdigest()
+else:
+    SESSION_SECRET = hashlib.sha256(f"{ADMIN_USERNAME}:{ADMIN_PASSWORD}".encode()).hexdigest()
 
 def get_auth_token() -> str:
     """Generate a secure HMAC auth token for session persistence."""
@@ -917,6 +921,56 @@ def metrics_screen():
             )
 
 
+# ── Screen 6: System Logs ──────────────────────────────────────────
+
+def logs_screen():
+    """Screen to view application log files."""
+    st.markdown("""
+    <div class="main-header">
+        <h1>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" style="vertical-align: sub; margin-right: 8px;"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            System Logs
+        </h1>
+        <p>Monitor real-time application logs and debug system behavior</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    log_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "multibot.log")
+    
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        st.markdown(f"**Log File:** `{log_file_path}`")
+    with col2:
+        if st.button("🔄 Refresh Logs", use_container_width=True):
+            st.rerun()
+
+    st.markdown("---")
+
+    if not os.path.exists(log_file_path):
+        st.warning(f"File log tidak ditemukan di {log_file_path}")
+        return
+
+    try:
+        # Read the last 500 lines to avoid memory issues
+        with open(log_file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            last_lines = lines[-500:]
+            
+        log_content = "".join(last_lines)
+        
+        # Display logs in a styled terminal box
+        st.markdown(f"""
+        <div style="background-color: #0d1117; color: #c9d1d9; padding: 15px; border-radius: 8px; 
+                    font-family: 'Consolas', 'Courier New', monospace; font-size: 13px;
+                    height: 600px; overflow-y: scroll; border: 1px solid #30363d;">
+            <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">{log_content}</pre>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    except Exception as e:
+        st.error(f"Gagal membaca file log: {e}")
+
+
 # ── Main App ────────────────────────────────────────────────────────
 
 def main():
@@ -947,6 +1001,7 @@ def main():
                 "Scheduling",
                 "Live Chat",
                 "Metrics",
+                "System Logs",
             ],
             label_visibility="collapsed",
         )
@@ -981,6 +1036,8 @@ def main():
         chat_monitor_screen()
     elif page == "Metrics":
         metrics_screen()
+    elif page == "System Logs":
+        logs_screen()
 
 
 if __name__ == "__main__":
