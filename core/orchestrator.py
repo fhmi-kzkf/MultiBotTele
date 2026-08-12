@@ -194,9 +194,10 @@ class Orchestrator:
             if success:
                 logger.info(f"{responder.id} responded to {sender_name}")
 
-                # Occasionally, another agent might chime in (30% chance)
-                if random.random() < 0.30 and len(active_agents) > 1:
-                    await asyncio.sleep(calculate_inter_message_delay())
+                # Force follow-up from multiple active agents
+                if len(active_agents) > 1:
+                    logger.info(f"Triggering chain follow-up responses from other agents (excluding {responder.id})")
+                    # We pass control to _add_follow_up which will manage delays and multiple responses
                     await self._add_follow_up(
                         chat_id, config, exclude_agent=responder.id
                     )
@@ -394,30 +395,45 @@ class Orchestrator:
     async def _add_follow_up(
         self, chat_id: int, config: AppConfig, exclude_agent: str
     ) -> None:
-        """Add a follow-up message from a different agent."""
+        """Add follow-up messages from multiple different agents sequentially."""
         active_agents = [
             a for a in config.get_active_agents()
             if a.id != exclude_agent and a.id in self.telegram.clients
         ]
 
         if not active_agents:
+            logger.warning(f"No other active agents available for follow-up (excluding {exclude_agent})")
             return
 
-        follower = random.choice(active_agents)
+        # Determine how many agents should follow up
+        # High chance for all remaining agents to join the conversation to simulate crowd excitement
+        num_followers = random.choices([1, 2, 3, 4], weights=[10, 20, 30, 40])[0]
+        num_followers = min(num_followers, len(active_agents))
 
-        try:
-            messages = await build_llm_payload(agent=follower, chat_id=chat_id)
-            response = await self.llm.generate_response(messages)
+        followers = random.sample(active_agents, num_followers)
+        logger.info(f"Selected {num_followers} follower agents to join the chat: {[f.name for f in followers]}")
 
-            if not is_skip_response(response):
-                await self.telegram.send_message_with_typing(
-                    agent_id=follower.id,
-                    chat_id=chat_id,
-                    text=response,
-                    agent_config=follower,
-                )
-        except Exception as e:
-            logger.debug(f"Follow-up from {follower.id} failed: {e}")
+        for follower in followers:
+            try:
+                # Add delay before each follow up to simulate human typing gap
+                delay = calculate_inter_message_delay()
+                await asyncio.sleep(delay)
+
+                messages = await build_llm_payload(agent=follower, chat_id=chat_id)
+                response = await self.llm.generate_response(messages)
+
+                if not is_skip_response(response):
+                    await self.telegram.send_message_with_typing(
+                        agent_id=follower.id,
+                        chat_id=chat_id,
+                        text=response,
+                        agent_config=follower,
+                    )
+                    logger.info(f"Follow-up message sent by {follower.name}")
+                else:
+                    logger.info(f"Follower {follower.name} decided to skip follow-up")
+            except Exception as e:
+                logger.error(f"Follow-up from {follower.name} failed: {e}", exc_info=True)
 
     # ── Kill Switch ─────────────────────────────────────────────────
 
