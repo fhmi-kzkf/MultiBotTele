@@ -281,41 +281,73 @@ def save_config_file(data):
         return False
 
 
-# ── Authentication ──────────────────────────────────────────────────
+# ── Authentication & Security ───────────────────────────────────────
+import hmac
+import hashlib
+import bcrypt
 
-def check_auth():
-    """Check if user is authenticated."""
-    return st.session_state.get("is_authenticated", False)
+# Generate secret key for session token signing based on ADMIN_PASSWORD and SECRET
+SESSION_SECRET = hashlib.sha256(f"{ADMIN_USERNAME}:{ADMIN_PASSWORD}".encode()).hexdigest()
 
+def get_auth_token() -> str:
+    """Generate a secure HMAC auth token for session persistence."""
+    return hmac.new(SESSION_SECRET.encode(), ADMIN_USERNAME.encode(), hashlib.sha256).hexdigest()
+
+def check_auth() -> bool:
+    """Check if user is authenticated via Session State or URL Query Params (browser refresh persistence)."""
+    # 1. Check in-memory session state
+    if st.session_state.get("is_authenticated", False):
+        return True
+
+    # 2. Check query params for persistent token (handles page refresh)
+    params = st.query_params
+    token = params.get("auth_token", "")
+    if token and hmac.compare_digest(token, get_auth_token()):
+        st.session_state["is_authenticated"] = True
+        return True
+
+    return False
+
+def verify_password(plain_password: str, hashed_or_plain: str) -> bool:
+    """Verify password supporting bcrypt hashes or secure string comparison."""
+    if hashed_or_plain.startswith("$2b$") or hashed_or_plain.startswith("$2a$"):
+        try:
+            return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_or_plain.encode('utf-8'))
+        except Exception:
+            return False
+    return hmac.compare_digest(plain_password, hashed_or_plain)
 
 def login_page():
-    """Render the login page."""
+    """Render the login page with secure authentication."""
     st.markdown("""
-    <div style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
-        <div style="text-align: center;">
-            <h1 style="font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-                        -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                🤖 MultiBotTele
+    <div style="display: flex; justify-content: center; align-items: center; min-height: 45vh;">
+        <div style="text-align: center; max-width: 400px; width: 100%;">
+            <h1 style="font-size: 2.2rem; font-weight: 400; color: #ffffff; letter-spacing: 0.04em; margin-bottom: 0.5rem;">
+                MULTIBOT TELE
             </h1>
-            <p style="color: rgba(255,255,255,0.5); font-size: 1.1rem; margin-bottom: 2rem;">
-                Multi-Agent Telegram Crowd Simulator
+            <p style="color: #807f7f; font-size: 0.85rem; letter-spacing: 0.02em; margin-bottom: 2rem;">
+                INSTITUTIONAL CROWD SIMULATOR
             </p>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
-        st.markdown("### 🔐 Login")
+        st.markdown('<div class="status-card">', unsafe_allow_html=True)
+        st.markdown("<p style='color: #807f7f; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 1rem;'>AUTHENTICATION</p>", unsafe_allow_html=True)
         username = st.text_input("Username", key="login_username")
         password = st.text_input("Password", type="password", key="login_password")
 
-        if st.button("Login", use_container_width=True, type="primary"):
-            if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        if st.button("Authenticate", use_container_width=True):
+            if hmac.compare_digest(username, ADMIN_USERNAME) and verify_password(password, ADMIN_PASSWORD):
                 st.session_state["is_authenticated"] = True
+                # Set persistent auth token in URL query params so refresh doesn't log out
+                st.query_params["auth_token"] = get_auth_token()
                 st.rerun()
             else:
-                st.error("❌ Username atau password salah!")
+                st.error("Authentication failed: Invalid credentials.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ── Screen 1: Command Dashboard ────────────────────────────────────
@@ -934,6 +966,8 @@ def main():
 
         if st.button("Logout", use_container_width=True):
             st.session_state["is_authenticated"] = False
+            if "auth_token" in st.query_params:
+                del st.query_params["auth_token"]
             st.rerun()
 
     # Route to selected screen
